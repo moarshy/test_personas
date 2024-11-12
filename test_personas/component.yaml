@@ -1,0 +1,14 @@
+name: test_personas
+author: naptha
+version: 0.1.0
+description: Test personas
+license: MIT
+
+outputs:
+    filename: output.txt
+    save: true
+    location: node
+
+implementation:
+    package:
+        entrypoint: run.py
