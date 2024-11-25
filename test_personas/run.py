@@ -124,10 +124,12 @@ async def run(agent_run: AgentRunInput, *args, **kwargs):
     client = openai.AsyncClient()
     
     # Load personas
-    personas_dir = kwargs.get('agents_dir', './market_agents_personas')
-    if 'market_agents_personas' not in personas_dir:
-        personas_dir = os.path.join(personas_dir, 'personas/market_agents_personas')
-    personas = await load_personas(personas_dir, agent_run.inputs.num_personas)
+    agents_dir = kwargs.get('agents_dir')
+    personas_dir = agent_run.agent_config.persona_module.dir
+    full_personas_dir = os.path.join(agents_dir, personas_dir)
+    if 'market_agents_personas' not in full_personas_dir:
+        full_personas_dir = os.path.join(full_personas_dir, 'personas/market_agents_personas')
+    personas = await load_personas(full_personas_dir, agent_run.inputs.num_personas)
     
     # First iteration: Individual responses
     logger.info("Starting first iteration: Individual responses")
