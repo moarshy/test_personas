@@ -5,14 +5,9 @@ import openai
 import logging
 from pathlib import Path
 from typing import List, Dict
-from test_personas.schemas import InputSchema
+from naptha_sdk.schemas import AgentRunInput
 
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 
@@ -120,11 +115,11 @@ Considering these viewpoints and your own characteristics, provide your final an
         logger.error(f"Error getting collective response for {persona['name']}: {str(e)}")
         raise
 
-async def run(inputs: InputSchema, worker_node_urls, *args, **kwargs):
+async def run(agent_run: AgentRunInput, *args, **kwargs):
     """Main run function for the agent"""
     logger.info("Starting persona simulation run")
-    logger.info(f"Question: {inputs.question}")
-    logger.info(f"Number of personas requested: {inputs.num_personas}")
+    logger.info(f"Question: {agent_run.inputs.question}")
+    logger.info(f"Number of personas requested: {agent_run.inputs.num_personas}")
     
     client = openai.AsyncClient()
     
@@ -132,13 +127,13 @@ async def run(inputs: InputSchema, worker_node_urls, *args, **kwargs):
     personas_dir = kwargs.get('agents_dir', './market_agents_personas')
     if 'market_agents_personas' not in personas_dir:
         personas_dir = os.path.join(personas_dir, 'personas/market_agents_personas')
-    personas = await load_personas(personas_dir, inputs.num_personas)
+    personas = await load_personas(personas_dir, agent_run.inputs.num_personas)
     
     # First iteration: Individual responses
     logger.info("Starting first iteration: Individual responses")
     individual_responses = {}
     for persona in personas:
-        response = await get_individual_response(client, persona, inputs.question)
+        response = await get_individual_response(client, persona, agent_run.inputs.question)
         individual_responses[persona['name']] = response
     logger.info(f"Completed individual responses for {len(individual_responses)} personas")
     
@@ -153,7 +148,7 @@ async def run(inputs: InputSchema, worker_node_urls, *args, **kwargs):
         response = await get_collective_response(
             client, 
             persona, 
-            inputs.question,
+            agent_run.inputs.question,
             other_responses
         )
         collective_responses[persona['name']] = response
@@ -167,30 +162,3 @@ async def run(inputs: InputSchema, worker_node_urls, *args, **kwargs):
     
     logger.info("Completed persona simulation run")
     return result
-
-
-if __name__ == "__main__":
-    import asyncio
-    from dotenv import load_dotenv
-    
-    load_dotenv()
-    
-    async def main():
-        logger.info("Starting main execution")
-        question = "Has the cost of living in the UK increased over the last 12 months?"
-        num_personas = 5
-        inputs = InputSchema(question=question, num_personas=num_personas)
-        
-        try:
-            result = await run(
-                inputs,
-                worker_node_urls=["http://localhost:8000"]
-            )
-            logger.info("Successfully completed execution")
-            print(result)
-        except Exception as e:
-            logger.error(f"Error in main execution: {str(e)}")
-            raise
-
-    # Run the async main function
-    asyncio.run(main())
