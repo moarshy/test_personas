@@ -121,6 +121,7 @@ async def run(agent_run: AgentRunInput, *args, **kwargs):
     logger.info(f"Question: {agent_run.inputs.question}")
     logger.info(f"Number of personas requested: {agent_run.inputs.num_personas}")
     logger.info(f"AgentRunInput: {agent_run}")
+    logger.info(f"Kwargs: {kwargs}")
     
     client = openai.AsyncClient()
     
