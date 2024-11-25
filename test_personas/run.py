@@ -126,8 +126,9 @@ async def run(agent_run: AgentRunInput, *args, **kwargs):
     
     # Load personas
     agents_dir = kwargs.get('agents_dir')
-    personas_dir = agent_run.agent_config.persona_module.dir
+    personas_dir = agent_run.agent_deployment.agent_config.persona_module.dir
     full_personas_dir = os.path.join(agents_dir, personas_dir)
+    logger.info(f"Full personas directory: {full_personas_dir}")
     if 'market_agents_personas' not in full_personas_dir:
         full_personas_dir = os.path.join(full_personas_dir, 'personas/market_agents_personas')
     personas = await load_personas(full_personas_dir, agent_run.inputs.num_personas)
