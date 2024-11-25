@@ -6,7 +6,7 @@
         "agent_config": {
             "config_name": "agent_config_1",
             "llm_config": {"config_name": "model_1"},
-            "persona_module" : {"url": "https://huggingface.co/datasets/NapthaAI/market_agents_personas", "dir": "personas/market_agents_personas/market_agents_personas"}
+            "persona_module" : {"url": "https://huggingface.co/datasets/NapthaAI/market_agents_personas", "dir": "personas/market_agents_personas/market_agents_personas/data"}
         }
     }
 ]
